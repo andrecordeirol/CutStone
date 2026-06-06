@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body><th:block th:fragment="content">
+<div class="page-header">
+    <div><h1><i class="fas fa-clipboard-list"></i> Pedido #<span th:text="${pedido.id}"></span></h1></div>
+    <div class="header-actions">
+        <a th:href="@{'/pedidos/'+${pedido.id}+'/editar'}" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
+        <form th:action="@{'/pedidos/'+${pedido.id}+'/deletar'}" method="post" onsubmit="return confirm('Remover pedido?')">
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+        </form>
+    </div>
+</div>
+
+<div style="display:grid;grid-template-columns:300px 1fr;gap:1.5rem;align-items:start">
+
+<!-- Info do pedido -->
+<div class="section-card">
+    <h2><i class="fas fa-info-circle"></i> Informações</h2>
+    <div class="detail-list">
+        <div class="detail-item"><span class="detail-label">Cliente</span>
+            <a th:href="@{'/clientes/'+${pedido.cliente.id}}" th:text="${pedido.cliente.nome}" class="link"></a></div>
+        <div class="detail-item"><span class="detail-label">Telefone</span><span th:text="${pedido.cliente.telefone ?: '—'}"></span></div>
+        <div class="detail-item"><span class="detail-label">Data</span><span th:text="${#temporals.format(pedido.dataPedido,'dd/MM/yyyy')}"></span></div>
+        <div class="detail-item"><span class="detail-label">Prazo</span>
+            <span th:text="${pedido.prazoEntrega != null ? #temporals.format(pedido.prazoEntrega,'dd/MM/yyyy') : '—'}"></span></div>
+        <div class="detail-item"><span class="detail-label">Status</span>
+            <span class="badge" th:classappend="'badge-'+${pedido.status.name().toLowerCase()}" th:text="${pedido.status.descricao}"></span></div>
+        <div class="detail-item" th:if="${pedido.observacoes}"><span class="detail-label">Obs.</span><span th:text="${pedido.observacoes}"></span></div>
+    </div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #eee">
+        <label style="font-size:.78rem;font-weight:600;color:#777;text-transform:uppercase">Alterar Status</label>
+        <form th:action="@{'/pedidos/'+${pedido.id}+'/status'}" method="post" style="display:flex;gap:.5rem;margin-top:.4rem">
+            <select name="status" class="form-control">
+                <option th:each="s : ${statusList}" th:value="${s}" th:text="${s.descricao}" th:selected="${pedido.status == s}"></option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-sync-alt"></i></button>
+        </form>
+    </div>
+</div>
+
+<!-- Peças -->
+<div>
+<div class="section-card">
+    <div class="section-header">
+        <h2><i class="fas fa-cut"></i> Peças para Cortar (<span th:text="${pedido.totalPecas}">0</span>)</h2>
+    </div>
+
+    <!-- Adicionar peça -->
+    <div class="add-item-form">
+        <h3><i class="fas fa-plus"></i> Adicionar Peça</h3>
+        <form th:action="@{'/pedidos/'+${pedido.id}+'/itens/adicionar'}" method="post" th:object="${novoItem}">
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr 0.6fr 1fr;gap:.6rem;margin-bottom:.6rem">
+                <div class="form-group"><label>Descrição *</label><input type="text" th:field="*{descricao}" class="form-control" placeholder="Ex: Bancada"/></div>
+                <div class="form-group"><label>Largura (cm)</label><input type="number" th:field="*{largura}" class="form-control" step="0.1" min="1" placeholder="0"/></div>
+                <div class="form-group"><label>Altura (cm)</label><input type="number" th:field="*{altura}" class="form-control" step="0.1" min="1" placeholder="0"/></div>
+                <div class="form-group"><label>Qtd</label><input type="number" th:field="*{quantidade}" class="form-control" min="1" value="1"/></div>
+                <div class="form-group"><label>Acabamento</label><input type="text" th:field="*{acabamento}" class="form-control" placeholder="Polido"/></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Adicionar</button>
+        </form>
+    </div>
+
+    <div th:if="${#lists.isEmpty(pedido.itens)}" class="empty-state-sm">
+        <p>Nenhuma peça adicionada ainda.</p>
+    </div>
+
+    <table th:unless="${#lists.isEmpty(pedido.itens)}" class="table">
+        <thead><tr><th>Descrição</th><th>Largura</th><th>Altura</th><th>Qtd</th><th>Área</th><th>Acabamento</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="item : ${pedido.itens}">
+            <td th:text="${item.descricao}"></td>
+            <td th:text="${item.largura} + ' cm'"></td>
+            <td th:text="${item.altura} + ' cm'"></td>
+            <td th:text="${item.quantidade}"></td>
+            <td th:text="${#numbers.formatDecimal(item.areaM2,1,2)} + ' m²'"></td>
+            <td th:text="${item.acabamento ?: '—'}"></td>
+            <td>
+                <form th:action="@{'/pedidos/itens/'+${item.id}+'/remover'}" method="post">
+                    <input type="hidden" name="pedidoId" th:value="${pedido.id}"/>
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remover peça?')"><i class="fas fa-trash"></i></button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Gerar plano -->
+<div class="section-card" th:unless="${#lists.isEmpty(pedido.itens)}">
+    <div class="section-header"><h2><i class="fas fa-drafting-compass"></i> Gerar Plano de Corte</h2></div>
+    <div th:if="${#lists.isEmpty(chapas)}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i> Nenhuma chapa com estoque.
+        <a th:href="@{/chapas/novo}">Cadastrar chapa →</a>
+    </div>
+    <form th:unless="${#lists.isEmpty(chapas)}" th:action="@{'/pedidos/'+${pedido.id}+'/gerar-plano'}" method="post"
+          style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="flex:1;min-width:280px">
+            <label>Selecionar Chapa *</label>
+            <select name="chapaId" class="form-control">
+                <option th:each="c : ${chapas}" th:value="${c.id}"
+                        th:text="${c.material} + ' ' + ${c.cor} + ' — ' + ${c.largura} + '×' + ${c.altura} + ' cm'"></option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-drafting-compass"></i> Gerar Plano</button>
+    </form>
+</div>
+
+<!-- Planos gerados -->
+<div class="section-card" th:unless="${#lists.isEmpty(planos)}">
+    <h2><i class="fas fa-history"></i> Planos Gerados</h2>
+    <div class="planos-list">
+        <div th:each="pl : ${planos}" class="plano-item">
+            <div class="plano-info">
+                <span class="plano-data" th:text="${#temporals.format(pl.dataCriacao,'dd/MM/yyyy HH:mm')}"></span>
+                <span class="plano-chapa" th:text="${pl.chapa.material} + ' ' + ${pl.chapa.cor}"></span>
+                <span class="plano-aproveitamento" th:text="${pl.aproveitamento} + '% aproveitamento'"></span>
+                <span class="plano-pecas" th:text="${pl.totalPecasEncaixadas} + ' encaixadas'"></span>
+            </div>
+            <div class="plano-actions">
+                <a th:href="@{'/planos/'+${pl.id}}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver</a>
+                <form th:action="@{'/planos/'+${pl.id}+'/deletar'}" method="post">
+                    <input type="hidden" name="pedidoId" th:value="${pedido.id}"/>
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remover plano?')"><i class="fas fa-trash"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div><!-- end right column -->
+</div><!-- end grid -->
+
+</th:block></body></html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body><th:block th:fragment="content">
+<div class="page-header">
+    <div><h1><i class="fas fa-layer-group"></i> Chapas / Estoque</h1></div>
+    <a th:href="@{/chapas/novo}" class="btn btn-primary"><i class="fas fa-plus"></i> Nova Chapa</a>
+</div>
+<div class="filter-bar">
+    <a th:href="@{/chapas}" class="filter-btn" th:classappend="${filtroMaterial == null ? 'active' : ''}">Todos</a>
+    <a th:each="m : ${materiais}" th:href="@{/chapas(material=${m})}" th:text="${m}"
+       class="filter-btn" th:classappend="${filtroMaterial == m ? 'active' : ''}"></a>
+</div>
+<div class="section-card">
+    <div th:if="${#lists.isEmpty(chapas)}" class="empty-state">
+        <i class="fas fa-layer-group"></i><p>Nenhuma chapa cadastrada.</p>
+        <a th:href="@{/chapas/novo}" class="btn btn-primary">Cadastrar Primeira Chapa</a>
+    </div>
+    <div th:unless="${#lists.isEmpty(chapas)}" class="chapas-grid">
+        <div th:each="c : ${chapas}" class="chapa-card">
+            <div class="chapa-header">
+                <span class="chapa-material" th:text="${c.material}"></span>
+                <span class="chapa-estoque" th:classappend="${c.quantidadeEstoque <= 2 ? 'estoque-baixo' : ''}">
+                    <i class="fas fa-boxes"></i> <span th:text="${c.quantidadeEstoque} + ' un.'"></span>
+                </span>
+            </div>
+            <div class="chapa-body">
+                <h3 th:text="${c.cor}"></h3>
+                <div class="chapa-dims">
+                    <span th:text="${c.largura} + ' cm'"></span> ×
+                    <span th:text="${c.altura} + ' cm'"></span>
+                    <span th:if="${c.espessura}" th:text="'× ' + ${c.espessura} + ' cm'"></span>
+                </div>
+                <div class="chapa-area">Área: <strong th:text="${#numbers.formatDecimal(c.areaM2,1,2)} + ' m²'"></strong></div>
+                <div class="chapa-preco" th:if="${c.precoPorM2}">R$ <span th:text="${#numbers.formatDecimal(c.precoPorM2,1,2)}"></span>/m²</div>
+            </div>
+            <div class="chapa-footer">
+                <a th:href="@{'/chapas/'+${c.id}+'/editar'}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i> Editar</a>
+                <form th:action="@{'/chapas/'+${c.id}+'/deletar'}" method="post" onsubmit="return confirm('Remover chapa?')">
+                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</th:block></body></html>

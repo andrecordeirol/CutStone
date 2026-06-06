@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body><th:block th:fragment="content">
+<div class="page-header">
+    <div><h1><i class="fas fa-layer-group"></i> <span th:text="${titulo}">Chapa</span></h1></div>
+</div>
+<div class="form-card">
+    <form th:action="@{/chapas/salvar}" method="post" th:object="${chapa}">
+        <input type="hidden" th:field="*{id}"/>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Material *</label>
+                <input type="text" th:field="*{material}" class="form-control"
+                       th:classappend="${#fields.hasErrors('material')}?'is-invalid'"
+                       placeholder="Ex: Granito, Mármore" list="mat-list"/>
+                <datalist id="mat-list">
+                    <option th:each="m : ${materiais}" th:value="${m}"></option>
+                </datalist>
+                <span class="field-error" th:if="${#fields.hasErrors('material')}" th:errors="*{material}"></span>
+            </div>
+            <div class="form-group">
+                <label>Cor / Nome *</label>
+                <input type="text" th:field="*{cor}" class="form-control"
+                       th:classappend="${#fields.hasErrors('cor')}?'is-invalid'"
+                       placeholder="Ex: Branco Polar"/>
+                <span class="field-error" th:if="${#fields.hasErrors('cor')}" th:errors="*{cor}"></span>
+            </div>
+            <div class="form-group">
+                <label>Largura (cm) *</label>
+                <input type="number" id="fLarg" th:field="*{largura}" class="form-control"
+                       th:classappend="${#fields.hasErrors('largura')}?'is-invalid'" step="0.1" min="1" placeholder="280"/>
+                <span class="field-error" th:if="${#fields.hasErrors('largura')}" th:errors="*{largura}"></span>
+            </div>
+            <div class="form-group">
+                <label>Altura (cm) *</label>
+                <input type="number" id="fAlt" th:field="*{altura}" class="form-control"
+                       th:classappend="${#fields.hasErrors('altura')}?'is-invalid'" step="0.1" min="1" placeholder="160"/>
+                <span class="field-error" th:if="${#fields.hasErrors('altura')}" th:errors="*{altura}"></span>
+            </div>
+            <div class="form-group">
+                <label>Espessura (cm)</label>
+                <input type="number" th:field="*{espessura}" class="form-control" step="0.5" min="0.5" placeholder="2"/>
+            </div>
+            <div class="form-group">
+                <label>Estoque</label>
+                <input type="number" th:field="*{quantidadeEstoque}" class="form-control" min="0"/>
+            </div>
+            <div class="form-group">
+                <label>Preço/m² (R$)</label>
+                <input type="number" th:field="*{precoPorM2}" class="form-control" step="0.01" min="0"/>
+            </div>
+            <div class="form-group full-width">
+                <label>Observações</label>
+                <textarea th:field="*{observacoes}" class="form-control" rows="2"></textarea>
+            </div>
+        </div>
+        <div id="preview" style="display:none;background:#eef7ee;border:1px solid #c3e6c3;border-radius:8px;padding:0.75rem 1rem;margin-top:.5rem;color:#2d6a2d">
+            Área total: <strong id="prevArea">—</strong>
+        </div>
+        <div class="form-actions">
+            <a th:href="@{/chapas}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Cancelar</a>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Chapa</button>
+        </div>
+    </form>
+</div>
+<script>
+const l=document.getElementById('fLarg'),a=document.getElementById('fAlt'),pv=document.getElementById('preview'),pa=document.getElementById('prevArea');
+function upd(){const lv=parseFloat(l.value),av=parseFloat(a.value);if(lv>0&&av>0){pv.style.display='block';pa.textContent=((lv*av)/10000).toFixed(2)+' m²';}}
+l.addEventListener('input',upd);a.addEventListener('input',upd);upd();
+</script>
+</th:block></body></html>

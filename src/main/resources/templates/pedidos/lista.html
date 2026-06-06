@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body><th:block th:fragment="content">
+<div class="page-header">
+    <div><h1><i class="fas fa-clipboard-list"></i> Pedidos</h1></div>
+    <a th:href="@{/pedidos/novo}" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Pedido</a>
+</div>
+<div class="filter-bar">
+    <a th:href="@{/pedidos}" class="filter-btn" th:classappend="${filtroStatus == null ? 'active' : ''}">Todos</a>
+    <a th:each="s : ${statusList}" th:href="@{/pedidos(status=${s.name()})}" th:text="${s.descricao}"
+       class="filter-btn" th:classappend="${filtroStatus == s.name() ? 'active' : ''}"></a>
+</div>
+<div class="section-card">
+    <div th:if="${#lists.isEmpty(pedidos)}" class="empty-state">
+        <i class="fas fa-clipboard-list"></i><p>Nenhum pedido encontrado.</p>
+        <a th:href="@{/pedidos/novo}" class="btn btn-primary">Criar Primeiro Pedido</a>
+    </div>
+    <table th:unless="${#lists.isEmpty(pedidos)}" class="table">
+        <thead><tr><th>#</th><th>Cliente</th><th>Data</th><th>Prazo</th><th>Peças</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${pedidos}">
+            <td th:text="'#'+${p.id}"></td>
+            <td><a th:href="@{'/clientes/'+${p.cliente.id}}" th:text="${p.cliente.nome}" class="link"></a></td>
+            <td th:text="${#temporals.format(p.dataPedido,'dd/MM/yyyy')}"></td>
+            <td th:text="${p.prazoEntrega != null ? #temporals.format(p.prazoEntrega,'dd/MM/yyyy') : '—'}"></td>
+            <td th:text="${p.totalPecas}"></td>
+            <td><span class="badge" th:classappend="'badge-'+${p.status.name().toLowerCase()}" th:text="${p.status.descricao}"></span></td>
+            <td class="actions-cell">
+                <a th:href="@{'/pedidos/'+${p.id}}" class="btn btn-sm btn-outline"><i class="fas fa-eye"></i></a>
+                <a th:href="@{'/pedidos/'+${p.id}+'/editar'}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a>
+                <form th:action="@{'/pedidos/'+${p.id}+'/deletar'}" method="post" onsubmit="return confirm('Remover pedido?')">
+                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</th:block></body></html>

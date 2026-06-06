@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body><th:block th:fragment="content">
+<div class="page-header">
+    <div><h1><i class="fas fa-user-edit"></i> <span th:text="${titulo}">Cliente</span></h1></div>
+</div>
+<div class="form-card">
+    <form th:action="@{/clientes/salvar}" method="post" th:object="${cliente}">
+        <input type="hidden" th:field="*{id}"/>
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label>Nome Completo *</label>
+                <input type="text" th:field="*{nome}" class="form-control"
+                       th:classappend="${#fields.hasErrors('nome')}?'is-invalid'" placeholder="Nome do cliente"/>
+                <span class="field-error" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+            </div>
+            <div class="form-group">
+                <label>CPF</label>
+                <input type="text" th:field="*{cpf}" class="form-control" placeholder="000.000.000-00"/>
+            </div>
+            <div class="form-group">
+                <label>Telefone</label>
+                <input type="text" th:field="*{telefone}" class="form-control" placeholder="(00) 00000-0000"/>
+            </div>
+            <div class="form-group full-width">
+                <label>E-mail</label>
+                <input type="email" th:field="*{email}" class="form-control"
+                       th:classappend="${#fields.hasErrors('email')}?'is-invalid'" placeholder="email@exemplo.com"/>
+                <span class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+            </div>
+            <div class="form-group full-width">
+                <label>Endereço</label>
+                <input type="text" th:field="*{endereco}" class="form-control" placeholder="Rua, número, bairro, cidade"/>
+            </div>
+            <div class="form-group full-width">
+                <label>Observações</label>
+                <textarea th:field="*{observacoes}" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="form-actions">
+            <a th:href="@{/clientes}" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Cancelar</a>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+    </form>
+</div>
+</th:block></body></html>

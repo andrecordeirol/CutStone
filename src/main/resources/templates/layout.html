@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${titulo != null ? titulo + ' | Marmoraria' : 'Marmoraria'}">Marmoraria</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-brand">
+        <a th:href="@{/}"><i class="fas fa-gem"></i><span>Marmoraria</span></a>
+    </div>
+    <ul class="navbar-menu">
+        <li><a th:href="@{/}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+        <li><a th:href="@{/clientes}"><i class="fas fa-users"></i> Clientes</a></li>
+        <li><a th:href="@{/chapas}"><i class="fas fa-layer-group"></i> Chapas</a></li>
+        <li><a th:href="@{/pedidos}"><i class="fas fa-clipboard-list"></i> Pedidos</a></li>
+    </ul>
+    <button class="navbar-toggle" onclick="document.querySelector('.navbar-menu').classList.toggle('open')">
+        <i class="fas fa-bars"></i>
+    </button>
+</nav>
+<main class="main-content">
+    <div th:if="${sucesso}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i><span th:text="${sucesso}"></span>
+        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+    </div>
+    <div th:if="${erro}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i><span th:text="${erro}"></span>
+        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+    </div>
+    <th:block th:replace="${content}"></th:block>
+</main>
+<footer class="footer"><p>© 2024 Marmoraria — Sistema de Plano de Cortes</p></footer>
+<script>setTimeout(() => document.querySelectorAll('.alert').forEach(a => a.remove()), 5000);</script>
+</body>
+</html>

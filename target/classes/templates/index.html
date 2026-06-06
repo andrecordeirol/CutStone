@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body><th:block th:fragment="content">
+<div class="page-header">
+    <div><h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1><p class="page-subtitle">Visão geral do sistema</p></div>
+</div>
+<div class="cards-grid">
+    <div class="card card-blue">
+        <div class="card-icon"><i class="fas fa-users"></i></div>
+        <div class="card-info"><span class="card-number" th:text="${totalClientes}">0</span><span class="card-label">Clientes</span></div>
+        <a th:href="@{/clientes}" class="card-link">Ver todos →</a>
+    </div>
+    <div class="card card-green">
+        <div class="card-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="card-info"><span class="card-number" th:text="${totalChapas}">0</span><span class="card-label">Chapas</span></div>
+        <a th:href="@{/chapas}" class="card-link">Ver todas →</a>
+    </div>
+    <div class="card card-orange">
+        <div class="card-icon"><i class="fas fa-clock"></i></div>
+        <div class="card-info"><span class="card-number" th:text="${pedidosPendentes}">0</span><span class="card-label">Pendentes</span></div>
+        <a th:href="@{/pedidos(status=PENDENTE)}" class="card-link">Ver pendentes →</a>
+    </div>
+    <div class="card card-purple">
+        <div class="card-icon"><i class="fas fa-tools"></i></div>
+        <div class="card-info"><span class="card-number" th:text="${pedidosEmProducao}">0</span><span class="card-label">Em Produção</span></div>
+        <a th:href="@{/pedidos(status=EM_PRODUCAO)}" class="card-link">Ver produção →</a>
+    </div>
+</div>
+<div class="section-card">
+    <div class="section-header">
+        <h2><i class="fas fa-clipboard-list"></i> Últimos Pedidos</h2>
+        <a th:href="@{/pedidos/novo}" class="btn btn-primary"><i class="fas fa-plus"></i> Novo Pedido</a>
+    </div>
+    <div th:if="${#lists.isEmpty(ultimosPedidos)}" class="empty-state">
+        <i class="fas fa-clipboard-list"></i><p>Nenhum pedido ainda.</p>
+        <a th:href="@{/pedidos/novo}" class="btn btn-primary">Criar Primeiro Pedido</a>
+    </div>
+    <table th:unless="${#lists.isEmpty(ultimosPedidos)}" class="table">
+        <thead><tr><th>#</th><th>Cliente</th><th>Data</th><th>Peças</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${ultimosPedidos}">
+            <td th:text="${p.id}"></td>
+            <td th:text="${p.cliente.nome}"></td>
+            <td th:text="${#temporals.format(p.dataPedido,'dd/MM/yyyy')}"></td>
+            <td th:text="${p.totalPecas}"></td>
+            <td><span class="badge" th:classappend="'badge-'+${p.status.name().toLowerCase()}" th:text="${p.status.descricao}"></span></td>
+            <td><a th:href="@{'/pedidos/'+${p.id}}" class="btn btn-sm btn-outline"><i class="fas fa-eye"></i></a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="quick-actions">
+    <h2><i class="fas fa-bolt"></i> Ações Rápidas</h2>
+    <div class="quick-actions-grid">
+        <a th:href="@{/clientes/novo}" class="quick-card"><i class="fas fa-user-plus"></i><span>Novo Cliente</span></a>
+        <a th:href="@{/chapas/novo}" class="quick-card"><i class="fas fa-plus-square"></i><span>Nova Chapa</span></a>
+        <a th:href="@{/pedidos/novo}" class="quick-card"><i class="fas fa-file-alt"></i><span>Novo Pedido</span></a>
+    </div>
+</div>
+</th:block></body></html>

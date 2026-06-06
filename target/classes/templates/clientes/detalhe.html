@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::content})}">
+<body><th:block th:fragment="content">
+<div class="page-header">
+    <div><h1><i class="fas fa-user"></i> <span th:text="${cliente.nome}"></span></h1></div>
+    <div class="header-actions">
+        <a th:href="@{'/clientes/'+${cliente.id}+'/editar'}" class="btn btn-warning"><i class="fas fa-edit"></i> Editar</a>
+        <form th:action="@{'/clientes/'+${cliente.id}+'/deletar'}" method="post" onsubmit="return confirm('Remover?')">
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+        </form>
+    </div>
+</div>
+<div class="section-card">
+    <div class="detail-list">
+        <div class="detail-item"><span class="detail-label">Nome</span><span th:text="${cliente.nome}"></span></div>
+        <div class="detail-item"><span class="detail-label">CPF</span><span th:text="${cliente.cpf ?: '—'}"></span></div>
+        <div class="detail-item"><span class="detail-label">Telefone</span><span th:text="${cliente.telefone ?: '—'}"></span></div>
+        <div class="detail-item"><span class="detail-label">E-mail</span><span th:text="${cliente.email ?: '—'}"></span></div>
+        <div class="detail-item"><span class="detail-label">Endereço</span><span th:text="${cliente.endereco ?: '—'}"></span></div>
+        <div class="detail-item" th:if="${cliente.observacoes}"><span class="detail-label">Obs.</span><span th:text="${cliente.observacoes}"></span></div>
+    </div>
+</div>
+</th:block></body></html>
